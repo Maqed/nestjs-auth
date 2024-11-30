@@ -1,4 +1,5 @@
-import { Entity, PrimaryKey, Property } from '@mikro-orm/core';
+import { Entity, PrimaryKey, Property, Unique } from '@mikro-orm/core';
+import { IsEmail, IsNotEmpty, MinLength } from 'class-validator';
 import { v4 } from 'uuid';
 
 @Entity()
@@ -7,12 +8,17 @@ export class User {
   id: string = v4();
 
   @Property()
+  @IsEmail()
+  @Unique()
   email!: string;
 
   @Property()
+  @IsNotEmpty()
+  @MinLength(2)
   name!: string;
 
   @Property({ hidden: true })
+  @MinLength(8)
   password: string;
 
   @Property({ onCreate: () => new Date() })
