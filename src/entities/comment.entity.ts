@@ -2,37 +2,33 @@ import {
   Entity,
   PrimaryKey,
   Property,
-  Unique,
+  ManyToOne,
   OneToMany,
   Collection,
 } from '@mikro-orm/core';
-import { IsEmail, IsNotEmpty, MinLength } from 'class-validator';
+import { IsNotEmpty } from 'class-validator';
 import { v4 } from 'uuid';
 
 // Entities
 import { Post } from './post.entity';
 
 @Entity()
-export class User {
+export class Comment {
   @PrimaryKey({ type: 'uuid' })
   id: string = v4();
 
   @Property()
-  @IsEmail()
-  @Unique()
-  email!: string;
-
-  @Property()
   @IsNotEmpty()
-  @MinLength(2)
-  name!: string;
+  content!: string;
 
-  @Property({ hidden: true })
-  @MinLength(8)
-  password: string;
+  @ManyToOne(() => Post, { nullable: true })
+  post?: Post;
 
-  @OneToMany(() => Post, (post) => post.author)
-  posts = new Collection<Post>(this);
+  @ManyToOne(() => Comment, { nullable: true })
+  parentComment?: Comment;
+
+  @OneToMany(() => Comment, (comment) => comment.parentComment)
+  replies = new Collection<Comment>(this);
 
   @Property({ onCreate: () => new Date() })
   createdAt!: Date;
