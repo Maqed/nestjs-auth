@@ -4,9 +4,12 @@ import {
   Body,
   ConflictException,
   ValidationPipe,
+  Request,
+  UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignupDto } from './dto/signup.dto';
+import { LocalAuthGuard } from './local-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -25,5 +28,17 @@ export class AuthController {
 
     const { password: _, ...userResponse } = user;
     return userResponse;
+  }
+
+  @UseGuards(LocalAuthGuard)
+  @Post('signin')
+  async signin(@Request() req) {
+    return this.authService.signIn(req.user);
+  }
+
+  @UseGuards(LocalAuthGuard)
+  @Post('signout')
+  async signout(@Request() req) {
+    return req.logout();
   }
 }
